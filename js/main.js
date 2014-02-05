@@ -1,391 +1,147 @@
-//map code
+// A simple test to check for tileset urls or MapBox ids
+var mapTypeTest = function(url) {
+    var regex = /http(s|):/;
+    var value = regex.test(url);
+    return value
+}
 
-var osmURL = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-osmAttribution = '&copy; OpenStreetMap contributors, <a href="redcross.org">Red Cross</a>',
-osm = new L.TileLayer(osmURL, {maxZoom: 18, attribution: osmAttribution});
+// Generates a new layer object readable by Leaflet's grouped control.
+// Take an exisiting layer object and condense the attribution and url information into
+// either a Leaflet or MapBox tileLayer
+// Returns the new layerObj
+var layerObjMaker = function(layerObj) {
+    
+    var newObj = {}
+    var layers = [];
+    for (var layer in layerObj) {
+        var layerUrl = layerObj[layer].url;
+        value = mapTypeTest(layerUrl)
+        if (value == true) {
+            newObj[layer] = L.tileLayer(layerUrl, {
+                attribution: layerObj[layer].attribution
+            });
+        } else {
+            newObj[layer] = L.mapbox.tileLayer(layerUrl);
+            layerObj.grid_layer = L.mapbox.gridLayer(layerUrl);
+            layerObj.grid_control = L.mapbox.gridControl(layerObj.grid_layer);
+        }
+    };
+    return newObj;
+}
 
-var hotosmURL = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-hotAttribution = '&copy; OpenStreetMap contributors, <a href="http://hot.openstreetmap.org/">Humanitarina OpenStreetMap Team</a>, <a href="redcross.org">Red Cross</a>',
-hotosm = new L.TileLayer(hotosmURL, {maxZoom: 18, attribution: hotAttribution});
+/* 
+baseMaker takes an object containing a tileLayer url and attribution
+it returns a condensed object of a tileLayer containing the attribution and a maxZoom
+*/
+var baseMaker = function(layerObj) {
+    var base_layers = layerObjMaker(layerObj);
+    return base_layers;
+};
 
-var stamenLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
-  attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
-});
+/* 
+overlayMaker takes an object containting objects of tileLayers
+*/
+var overlayMaker = function (groupObj) {
+    newGroupObj = {}
+    for (var group in groupObj) {
+        var layerObj = groupObj[group];
+        var group_layers = layerObjMaker(layerObj);
+        newGroupObj[group] = group_layers;
+    }
+    return newGroupObj;
+};
 
-var taclobanSatURL = 'http://hiu-maps.net/hot/1.0.0/taclobancity-post-flipped/{z}/{x}/{y}.png',
-taclobanSatAtt = '&copy; US Government (USG) under the NextView (NV) License',
-taclobanSat = new L.TileLayer(taclobanSatURL, {maxZoom: 20, attribution: taclobanSatAtt});
-
-var medellinURL = 'http://hiu-maps.net/hot/1.0.0/cebu-post-flipped/{z}/{x}/{y}.png',
-medellinAtt = '&copy; US Government (USG) under the NextView (NV) License',
-medellinSat = new L.TileLayer(medellinURL, {maxZoom: 20, attribution: medellinAtt});
-
-var dgURL = 'http://hiu-maps.net/hot/1.0.0/haiyan-dg-post-flipped/{z}/{x}/{y}.png',
-dgSatAtt = '&copy; Digital Globe & US Government (USG) under the NextView (NV) License',
-dgSat = new L.TileLayer(dgURL, {maxZoom: 20, attribution: dgSatAtt});
-
-var atriskUrl ='http://openmapsurfer.uni-hd.de/tiles/disaster/haiyan/elr/x={x}&y={y}&z={z}';
-var atriskLayer = L.tileLayer(atriskUrl, {attribution: '(c) OpenStreetMap contriubutors (c) tiles: GIScience Heidelberg'});
-
-var surgeMapLayer = L.mapbox.tileLayer('americanredcross.StormSurgeMaxHeight');
-var surgeGridLayer = L.mapbox.gridLayer('americanredcross.StormSurgeMaxHeight');
-var surgeGridControl = L.mapbox.gridControl(surgeGridLayer);
-
-var ngaLayer = L.mapbox.tileLayer('americanredcross.NGA_DamageAssessment_Nov11');
-var ngaGridLayer = L.mapbox.gridLayer('americanredcross.NGA_DamageAssessment_Nov11');
-var ngaGridControl = L.mapbox.gridControl(ngaGridLayer);
-
-var copernicusBldgsNov8Layer = L.mapbox.tileLayer('americanredcross.Building_Damages_Tacloban');
-var copernicusGridLayer = L.mapbox.gridLayer('americanredcross.Building_Damages_Tacloban');
-var copernicusGridControl = L.mapbox.gridControl(copernicusGridLayer);
-
-var impassableRoadsLayer = L.mapbox.tileLayer('americanredcross.HAIYAN_Bridges');
-var impassableGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Bridges');
-var impassableGridControl = L.mapbox.gridControl(impassableGridLayer);
-
-var prepostRoads = L.mapbox.tileLayer('americanredcross.w7xbhuxr');
-var prepostRoadsGridLayer = L.mapbox.gridLayer('americanredcross.w7xbhuxr');
-var prepostRoadsGridControl = L.mapbox.gridControl(prepostRoadsGridLayer);
-
-var evacuatedByArea = L.mapbox.tileLayer('americanredcross.Haiyan_2013-11-11_EvacuatedPersonsByProvince');
-var evacuatedGridLayer = L.mapbox.gridLayer('americanredcross.Haiyan_2013-11-11_EvacuatedPersonsByProvince');
-var evacuatedGridControl = L.mapbox.gridControl(evacuatedGridLayer);
-
-var cashTransfer = L.mapbox.tileLayer('americanredcross.HAIYAN_CashTransfer_Nov13');
-var cashTransferGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_CashTransfer_Nov13');
-var cashTransferGridControl = L.mapbox.gridControl(cashTransferGridLayer);
-
-var schools = L.mapbox.tileLayer('americanredcross.HAIYAN_Schools');
-var schoolsGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Schools');
-var schoolsGridControl = L.mapbox.gridControl(schoolsGridLayer);
-
-var populationByArea = L.mapbox.tileLayer('americanredcross.HAIYAN_OCHA_Population_by_Barangay_2010');
-var populationGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_OCHA_Population_by_Barangay_2010');
-var populationGridControl = L.mapbox.gridControl(populationGridLayer);
-
-var airports = L.mapbox.tileLayer('americanredcross.Philippines_airstrips');
-var airportsGridLayer = L.mapbox.gridLayer('americanredcross.Philippines_airstrips');
-var airportsGridControl = L.mapbox.gridControl(airportsGridLayer);
-
-var townHalls = L.mapbox.tileLayer('americanredcross.HAIYAN_Townhalls');
-var townHallsGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Townhalls');
-var townHallsGridControl = L.mapbox.gridControl(townHallsGridLayer);
-
-var erus = L.mapbox.tileLayer('americanredcross.HAIYAN_IFRC_Staff_Deployments');
-var erusGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_IFRC_Staff_Deployments');
-var erusGridControl = L.mapbox.gridControl(erusGridLayer);
-
-var ifrcAreaOpps = L.mapbox.tileLayer('americanredcross.HAIYAN_Evacuation_Centers');
-var ifrcAreaGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Evacuation_Centers');
-var ifrcAreaGridControl = L.mapbox.gridControl(ifrcAreaGridLayer);
-
-var atlas = L.mapbox.tileLayer('americanredcross.HAIYAN_Atlas_Bounds');
-var atlasGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Atlas_Bounds');
-var atlasGridControl = L.mapbox.gridControl(atlasGridLayer);
-
-var affectedPersons = L.mapbox.tileLayer('americanredcross.HAIYAN_Affected_Persons');
-var affectedPersonsGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Affected_Persons');
-var affectedPersonsGridControl = L.mapbox.gridControl(affectedPersonsGridLayer);
-
-var poverty = L.mapbox.tileLayer('americanredcross.HAIYAN_Poverty_by_Municipality');
-var povertyGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Poverty_by_Municipality');
-var povertyGridControl = L.mapbox.gridControl(povertyGridLayer);
-
-var bantayanBLDs = L.mapbox.tileLayer('americanredcross.HAIYAN_Bantayan_AffectedBuildings_15Nov2013');
-var bantayanBLDsGridLayer = L.mapbox.gridLayer('americanredcross.HAIYAN_Bantayan_AffectedBuildings_15Nov2013');
-var bantayanBLDsGridControl = L.mapbox.gridControl(bantayanBLDsGridLayer);
+var baseLayers = baseMaker(base_layers);
+var groupedOverlays = overlayMaker(grouped_overlays);
 
 var map = L.map('map', {
-        zoom: 8,
-        center: [11.2500, 125.0000],
-        layers: [hotosm]
+    zoom: 8,
+    center: [11.2500, 125.0000],
+    layers: [baseLayers["Humanitarian OSM"]]
 });
+
+//need to add geocoder, fails for some reason
+// var geocoder = L.mapbox.geocoderControl('americanredcross.m5zv9529').addTo(map);
 
 var legendControl = L.mapbox.legendControl().addTo(map);
 
-map.on('overlayadd', function(eventLayer){
-        //grid controls
-        if (eventLayer.name == "Storm Surge Max Height"){
-                map.addLayer(surgeGridLayer);
-                map.addControl(surgeGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-        if (eventLayer.name == "USG Damange Assessment"){
-                map.addLayer(ngaGridLayer);
-                map.addControl(ngaGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-        if (eventLayer.name == "Pre/Post Disaster Roads"){
-                map.addLayer(prepostRoadsGridLayer);
-                map.addControl(prepostRoadsGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        } 
-        if (eventLayer.name == "Evacuated By Area"){
-                map.addLayer(evacuatedGridLayer);
-                map.addControl(evacuatedGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        } 
+/* 
+Add and remove grid overlays
 
-        if (eventLayer.name == "Cash Transfer"){
-                map.addLayer(cashTransferGridLayer);
-                map.addControl(cashTransferGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
+Since we don't know how many more layers will be added in the future,
+we're saving them in an array rather than saving them to variables.
+*/
+var grid_layers = [];
+var grid_controls = [];
+
+// Simple tile layers are taken care of by Leaflet's legend control.
+// More complex layers with grids and legends require special handling.
+// Take the layer that was just removed, checks the current active grid
+// layers and controls, and removes that data from view.
+map.on("overlayremove", function(eventLayer){
+    var group = eventLayer.group.name;
+    var name = eventLayer.name;
+    var url = grouped_overlays[group][name].url;
+    var value = mapTypeTest(url);
+    if (!value) {
+        legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
+        var id = eventLayer.layer._tilejson.id
+        for (el in grid_layers) {
+            if (id === grid_layers[el]._tilejson.id) {
+                map.removeLayer(grid_layers[el]);
+            }
         }
-
-        if (eventLayer.name == "Schools DFED 2009"){
-                map.addLayer(schoolsGridLayer);
-                map.addControl(schoolsGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
+        for (el in grid_controls) {
+            if (id === grid_controls[el]._layer._tilejson.id) {
+                map.removeControl(grid_controls[el]);
+            }
         }
-
-        if (eventLayer.name == "Population by Baranguy"){
-                map.addLayer(populationGridLayer);
-                map.addControl(populationGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-        if (eventLayer.name == "IFRC Area of Opps"){
-                map.addLayer(ifrcAreaGridLayer);
-                map.addControl(ifrcAreaGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-
-        if (eventLayer.name == "Airports"){
-                map.addLayer(airportsGridLayer);
-                map.addControl(airportsGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-
-        if (eventLayer.name == "TownHalls"){
-                map.addLayer(townHallsGridLayer);
-                map.addControl(townHallsGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-
-        if (eventLayer.name == "IFRC ERUs"){
-                map.addLayer(erusGridLayer);
-                map.addControl(erusGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-
-        if (eventLayer.name == "Bantayan Buildings"){
-                map.addLayer(bantayanBLDsGridLayer);
-                map.addControl(bantayanBLDsGridControl);
-                legendControl.setPosition('bottomleft');
-
-       }
-        if (eventLayer.name == "Population by Baranguy"){
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-
-        if (eventLayer.name == "Tacloban Building Damage Nov8"){
-                map.addLayer(copernicusGridLayer);
-                map.addControl(copernicusGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }     
-        if (eventLayer.name == "Impassable Roads"){
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        } 
-
-        if (eventLayer.name == "Affected Persons"){
-                map.addLayer(affectedPersonsGridLayer);
-                map.addControl(affectedPersonsGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        }
-        if (eventLayer.name == "Poverty by Municipality"){
-                map.addLayer(povertyGridLayer);
-                map.addControl(povertyGridControl);
-                legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-                legendControl.setPosition('bottomleft');
-        } 
-        // if (eventLayer.name == "Place Names"){
-        //         map.addLayer(atlasGridLayer);
-        //         map.addControl(atlasGridControl);
-        //         legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
-        // }        
-
+    }
 });
 
-map.on('overlayremove', function(eventLayer){
-        //grid controls
-        if (eventLayer.name == "Storm Surge Max Height"){
-                map.removeLayer(surgeGridLayer);
-                map.removeControl(surgeGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-        if (eventLayer.name == "USG Damange Assessment"){
-                map.removeLayer(ngaGridLayer);
-                map.removeControl(ngaGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-        if (eventLayer.name == "Pre/Post Disaster Roads"){
-                map.removeLayer(prepostRoadsGridLayer);
-                map.removeControl(prepostRoadsGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "Evacuated By Area"){
-                map.removeLayer(evacuatedGridLayer);
-                map.removeControl(evacuatedGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        } 
-
-        if (eventLayer.name == "Cash Transfer"){
-                map.removeLayer(cashTransferGridLayer);
-                map.removeControl(cashTransferGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        } 
-
-        if (eventLayer.name == "Schools DFED 2009"){
-                map.removeLayer(schoolsGridLayer);
-                map.removeControl(schoolsGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "Population by Baranguy"){
-                map.removeLayer(populationGridLayer);
-                map.removeControl(populationGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "IFRC Area of Opps"){
-                map.removeLayer(ifrcAreaGridLayer);
-                map.removeControl(ifrcAreaGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "Airports"){
-                map.removeLayer(airportsGridLayer);
-                map.removeControl(airportsGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "TownHalls"){
-                map.removeLayer(townHallsGridLayer);
-                map.removeControl(townHallsGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "IFRC ERUs"){
-                map.removeLayer(erusGridLayer);
-                map.removeControl(erusGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "Bantayan Buildings"){
-                map.removeLayer(bantayanBLDsGridLayer);
-                map.removeControl(bantayanBLDsGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        //legends controls
-        if (eventLayer.name == "Tacloban Building Damage Nov8"){
-                map.removeLayer(copernicusGridLayer);
-                map.removeControl(copernicusGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);                       
-        }
-        if (eventLayer.name == "Impassable Roads"){
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);                       
-        }
-        if (eventLayer.name == "Population by Baranguy"){
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-        if (eventLayer.name == "Affected Persons"){
-                map.removeLayer(affectedPersonsGridLayer);
-                map.removeControl(affectedPersonsGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        }
-
-        if (eventLayer.name == "Poverty by Municipality"){
-                map.removeLayer(povertyGridLayer);
-                map.removeControl(povertyGridControl);
-                legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        } 
-
-        // if (eventLayer.name == "Place Names"){
-        //         map.removeLayer(atlasGridLayer);
-        //         map.removeControl(atlasGridControl);
-        //         legendControl.removeLegend(eventLayer.layer.getTileJSON().legend);
-        // }
-
+// Once we add a grid layer and grid controls, they're pushed to an array to be accessed for removal.
+// Take an event layer, get the id of the tile layer, and call L.mapbox.gridControl() and L.mapbox.gridLayer()
+map.on("overlayadd", function(eventLayer) {
+    var group = eventLayer.group.name;
+    var name = eventLayer.name;
+    var url = grouped_overlays[group][name].url;
+    var value = mapTypeTest(url);
+    if (!value) {
+        var grid_layer = L.mapbox.gridLayer(url);
+        grid_layers.push(grid_layer);
+        var grid_control = L.mapbox.gridControl(grid_layer);
+        grid_controls.push(grid_control);
+        map.addLayer(grid_layer);
+        map.addControl(grid_control, {follow: true});
+        legendControl.addLegend(eventLayer.layer.getTileJSON().legend);
+        legendControl.setPosition('bottomleft');
+    }
 });
+
+// Create the grouped layer control from the plugin
+// See https://github.com/ismyrnow/Leaflet.groupedlayercontrol
+L.control.groupedLayers(baseLayers, groupedOverlays).addTo(map);
 
 var zoomLevel = map.getZoom().toString();
-$("#zoomLevel").html(zoomLevel);
+$('#zoomLevel').html(zoomLevel);
 
 map.on('zoomend', function(){
-        zoomLevel = map.getZoom().toString();
-        $("#zoomLevel").html(zoomLevel);
-})
+    zoomLevel = map.getZoom().toString();
+    $('#zoomLevel').html(zoomLevel);
+});
 
-var baseMaps = {
-        "OSM standard": osm,
-        "HOT OSM": hotosm,
-        "Toner": stamenLayer
-};
-
-var groupedOverlays = {
-        "Imagery": {
-                "Digital Globe": dgSat,
-                "Post Imagery - Tacloban": taclobanSat,
-                "Pre Imagery - Medellin": medellinSat   
-        },
-        "Base Layers": {
-                "Population by Baranguy": populationByArea,
-                "Elements At Risk": atriskLayer,
-                "Schools DFED 2009": schools,
-                "Airports": airports,
-                "TownHalls": townHalls,
-                "Cash Transfer": cashTransfer,
-                "Poverty by Municipality": poverty,
-                "Place Names": atlas
-        },
-        "Damage Layers": {
-                "Storm Surge Max Height": surgeMapLayer,
-                "Tacloban Building Damage Nov8": copernicusBldgsNov8Layer,
-                "USG Damange Assessment": ngaLayer,
-                "Impassable Roads": impassableRoadsLayer,
-                "Pre/Post Roads": prepostRoads,
-                "Bantayan Buildings": bantayanBLDs,
-                "Affected Persons": affectedPersons
-        },
-        "Red Cross Layers": {
-                "IFRC ERUs": erus,
-                "IFRC Area of Opps": ifrcAreaOpps
-        },
-        "Philippines RC Layers": {
-                "Evacuated By Area": evacuatedByArea
-        }
-};
-
-L.control.groupedLayers(baseMaps, groupedOverlays).addTo(map);
-
-//time code
+// time code
 function getTime() {
         var philTimeURL = 'http://api.geonames.org/timezoneJSON?lat=14.5833&lng=120.9667&username=amcross';
         var dcTimeURL = 'http://api.geonames.org/timezoneJSON?lat=38.8951&lng=-77.0367&username=amcross';
         var genevaTimeURL = 'http://api.geonames.org/timezoneJSON?lat=46.2000&lng=6.1500&username=amcross';
-        var klTimeURL = 'http://api.geonames.org/timezoneJSON?lat=3.1357&lng=101.6880&username=amcross'; 
+        var klTimeURL = 'http://api.geonames.org/timezoneJSON?lat=3.1357&lng=101.6880&username=amcross';
 
         $.getJSON(philTimeURL, function(json, textStatus) {
                 // var philTime = json.time.substring((json.time.length-5),json.time.length);
                 var philSunset = json.sunset.substring((json.sunset.length-5),json.sunset.length);
                 var philSunrise = json.sunrise.substring((json.sunrise.length-5),json.sunrise.length);
-                $('#philTime').append(json.time + '<br />Sunrise: ' + philSunrise + '<br />Sunset: ' + philSunset);
+                $('#philTime').append(json.time + '<br /><img src="images/sun.png" class="timeicon">Sunrise: ' + philSunrise + '<br /><img src="images/moon.png" class="timeicon">Sunset: ' + philSunset);
         });
 
         $.getJSON(dcTimeURL, function(json, textStatus) {
@@ -408,11 +164,20 @@ setTimeout(getTime(),1000);
 
 
 //map size code
-$('#map').css("height", ($(window).height()));
-$(window).on("resize", resize);
+$('#map').css('height', ($(window).height()));
+$(window).on('resize', resize);
 resize();
 function resize(){
-	$('#map').css("height", ($(window).height()));    
+        $('#map').css('height', ($(window).height()));
 }
 
-
+//toggleLegend code
+function toggleLegend(element) {
+    if($(element).hasClass("visible")){
+        $(element).removeClass("visible");
+        $(".map-legends").hide();
+    } else {
+        $(element).addClass("visible");
+        $(".map-legends").show();
+    }
+}

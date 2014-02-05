@@ -11,6 +11,12 @@
 	margin: 5px;
 }
 
+.prclogo {
+	height: 40px;
+	padding: 3px;
+	float:right;
+}
+
 .time, .facts{
 	padding-left: 5px;
 	color: #000;
@@ -43,8 +49,9 @@ ul {
 }
 
 #title {
-	margin: 20px;
-	padding: auto;
+	margin: 5px;
+	/*float: right;
+	display: inline;*/
 }
 
 #zoomLevelBox {
@@ -56,6 +63,28 @@ ul {
 	border-radius: 4px;
 	padding: 6px 8px;	
 	border: 1px solid #ccc;
+	font-size:smaller;
+}
+
+#toggleLegends {
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 55px;
+	background-color: white;
+	border-radius: 5px;
+	padding: 6px 8px;	
+	font-size:smaller;
+	cursor: pointer;
+	box-shadow: 0 1px 7px rgba(0,0,0,0.4);
+}
+
+.timeicon {
+	height: 16px;
+}
+
+.map-tooltip {
+	font-size: small;
 }
 
 /*bootstrap has white text for this and the text in the legend pulled from mapbox doesnt show*/
@@ -70,9 +99,10 @@ ul {
 /*leaflet control group layers */
 .leaflet-control-layers-group-name {
 	font-weight: bold;
+	font-size:13px;
 	margin-bottom: .2em;
 	display: block;
-        cursor:pointer;
+    cursor:pointer;
 }
 
 .leaflet-control-layers-group {

@@ -8,6 +8,9 @@
 
   <title>Red Cross Haiyan Response</title>
 
+  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+
   <!-- Bootstrap core CSS -->
   <link href="css/bootstrap.css" rel="stylesheet">
 
@@ -25,11 +28,13 @@
     </head>
     <body>
       <div id="wrapper">
+      <!--[if lt IE 10]>
+            <p class="oldBrowser" style="text-align:center;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a>.</p>
+            <![endif]-->
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-        <h3 id='title'>Haiyan Dashboard</h3>
+        <img src="images/prc_logo.png" class="prclogo" /><h3 id='title'>Haiyan Dashboard</h3>
           <a href="http://ifrc.org"><img src="images/joint_logos.png" class="logo" /></a>          
-
           <div class="panel-group" id="accordion">
             <div class="panel panel-default">
               <div class="panel-heading">
@@ -42,10 +47,10 @@
               <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                   <ul>
-                    <li id="philTime"><b>Manilla:</b> </li>
-                    <li id="dcTime"><b>Washington, DC:</b> </li>
-                    <li id="genevaTime"><b>Geneva:</b> </li>
-                    <li id="klTime"><b>Kuala Lampur:</b> </li>
+                    <li id="philTime"><b>Manila:</b><br /></li>
+                    <li id="dcTime"><b>Washington, DC:</b><br /></li>
+                    <li id="genevaTime"><b>Geneva:</b><br /></li>
+                    <li id="klTime"><b>Kuala Lampur:</b><br /></li>
                   </ul>
                 </div>
               </div>
@@ -61,15 +66,16 @@
               <div id="collapseTwo" class="panel-collapse collapse">
                 <div class="panel-body">
                   <p>
-                    <b>People Affected: </b><span id='affected'>8.67 million (NDRRMC)</span>
-                    <br /><b>Deaths: </b><span id='deaths'>2,357 (NDRRMC)</span>
-                    <br /><b>Injured: </b><span id='injured'>3,843 (NDRRMC)</span>
-                    <br /><b>Missing: </b><span id='missing'>77 (NDRRMC)</span>
-                    <br /><b>Displaced: </b><span id='displaced'>921,212 (OCHA)</span>
-                    <!-- <br /><b>Homeless: </b><span id='homeless'></span> -->
+                    <b>People Affected: </b><span id='affected'>11 million<sup>*</sup></span>
+                    <br /><b>Deaths: </b><span id='deaths'>5,786<sup>*</sup></span>
+                    <br /><b>Injured: </b><span id='injured'>26,233<sup>*</sup></span>
+                    <br /><b>Missing: </b><span id='missing'>1,779<sup>*</sup></span>
+                    <br /><b>Displaced: </b><span id='displaced'>4 million<sup>*</sup></span>
+                    <br /><b>Homes Damaged: </b><span id='homedmg'>1.2 million<sup>*</sup></span>
                     <br /><b>IFRC Appeal: </b><span id='ifrcappeal'>$78 million</span>
                     <br /><b>ICRC Appeal: </b><span id='icrcappeal'>$16.4 million</span>
-                    <!-- <br /><b>IFRC Personal: </b><span id='personal'></span> -->
+                    <br /><small>Updated: December 6, 2013
+                    <br />* Source: NDRRMC SitRep 54</small>
                   </p>
                 </div>
               </div>
@@ -84,7 +90,7 @@
               </div>
               <div id="collapseThree" class="panel-collapse collapse">
                 <div class="panel-body">
-                  <p>While every effort has been made to ensure the quality and provide the most up to date data. The Red Cross makes no warranty or Gaurantee as to the accuarcy, timeliness, or completness of the data provided.</p>
+                  <p>While every effort has been made to ensure the quality of data presented, the Red Cross makes no warranty or guarantee as to the accuracy, timeliness, or completeness of the data provided.</p>
                 </div>
               </div>
             </div>
@@ -97,6 +103,7 @@
             <div class="row">
               <div class="col-md-12 fill">
                 <div id="zoomLevelBox">Current Zoom Level: <span id='zoomLevel'></span></div>
+                <div id="toggleLegends" class="visible" onclick="toggleLegend(this);">Toggle Legend</div>
                 <div id='map'></div>
               </div>
             </div>
@@ -110,6 +117,17 @@
       <!-- Put this into a custom JavaScript file to make things more organized -->
       <script src='http://api.tiles.mapbox.com/mapbox.js/v1.4.0/mapbox.js'></script>
       <script src="js/leaflet.groupedlayercontrol.js"></script>
+      <script src="js/maps.js"></script>
       <script src="js/main.js"></script>
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-42245094-4', 'redcross.org');
+        ga('send', 'pageview');
+
+      </script>
     </body>
     </html>
